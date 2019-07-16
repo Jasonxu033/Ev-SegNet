@@ -167,8 +167,11 @@ class Segception_small(tf.keras.Model):
         for i in range(len(outputs)):
             outputs[i] = layers.LeakyReLU(alpha=0.3)(outputs[i])
 
+        # (outputs[0].shape)
         x = self.adap_encoder_1(outputs[0], training=training)
+
         x = upsampling(x, scale=2)
+        # print(x.shape)
         x += reshape_into(self.adap_encoder_2(outputs[1], training=training), x)  # 512
         x = self.decoder_conv_1(x, training=training)  # 256
 
@@ -271,7 +274,7 @@ class RefineNet(tf.keras.Model):
         # get non refined segmentation
         segmentation = self.base_model(inputs, training=training)
 
-        for i in xrange(iterations):
+        for i in range(iterations):
             x = tf.concat([inputs, segmentation], -1)
             x = self.conv(x, training=training)
             segmentation = self.conv_logits(x)
@@ -281,9 +284,12 @@ class RefineNet(tf.keras.Model):
 
 
 def upsampling(inputs, scale):
-    return tf.image.resize_bilinear(inputs, size=[tf.shape(inputs)[1] * scale, tf.shape(inputs)[2] * scale],
+    a = inputs.shape[1]
+    b = inputs.shape[2]
+    # return tf.image.resize_bilinear(inputs, size=[tf.shape(inputs)[1] * scale, tf.shape(inputs)[2] * scale],
+    #                                 align_corners=True)
+    return tf.image.resize_bilinear(inputs, size=[a, b],
                                     align_corners=True)
-
 
 def reshape_into(inputs, input_to_copy):
     return tf.image.resize_bilinear(inputs, [input_to_copy.get_shape()[1].value,
@@ -532,7 +538,7 @@ class FeatureGeneration(tf.keras.Model):
 
         self.conv0 = Conv_BN(self.filters, kernel_size=1)
         self.blocks = []
-        for n in xrange(blocks):
+        for n in range(blocks):
             self.blocks = self.blocks + [
                 ShatheBlock(self.filters, kernel_size=kernel_size, dilation_rate=dilation_rate)]
 
@@ -556,7 +562,7 @@ class FeatureGeneration_Dil(tf.keras.Model):
 
         self.conv0 = Conv_BN(self.filters, kernel_size=1)
         self.blocks = []
-        for n in xrange(blocks):
+        for n in range(blocks):
             self.blocks = self.blocks + [
                 ShatheBlock_MultiDil(self.filters, kernel_size=kernel_size, dilation_rate=dilation_rate)]
 
