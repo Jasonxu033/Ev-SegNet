@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import glob
 import cv2
-from augmenters import get_augmenter
+from utils.augmenters import get_augmenter
 
 np.random.seed(7)
 problemTypes = ['classification', 'segmentation']
@@ -56,12 +56,21 @@ class Loader:
 
         # Load filepaths
         files = glob.glob(os.path.join(dataFolderPath, '*', '*', '*'))
+        print(files)
 
-        print('Structuring test and train files...')
+        # print('Structuring test and train files...')
+        '''
         self.test_list = [file for file in files if '/test/' in file]
         self.train_list = [file for file in files if '/train/' in file]
         if other:
             self.test_list = [file for file in files if '/other/' in file]
+        print(len(self.test_list), len(self.train_list))    
+        '''
+        self.test_list = [file for file in files if 'test' in file]
+        self.train_list = [file for file in files if 'train' in file]
+        if other:
+            self.test_list = [file for file in files if 'other' in file]
+        print(len(self.test_list), len(self.train_list))
 
         # Check problem type
         if problemType in problemTypes:
@@ -102,12 +111,19 @@ class Loader:
             # Separate image and label lists
             # Sort them to align labels and images
 
-            self.image_train_list = [file for file in self.train_list if '/images/' in file]
-            self.image_test_list = [file for file in self.test_list if '/images/' in file]
-            self.label_train_list = [file for file in self.train_list if '/labels/' in file]
-            self.label_test_list = [file for file in self.test_list if '/labels/' in file]
-            self.events_train_list = [file for file in self.train_list if '/events/' in file]
-            self.events_test_list = [file for file in self.test_list if '/events/' in file]
+            # self.image_train_list = [file for file in self.train_list if '/images/' in file]
+            # self.image_test_list = [file for file in self.test_list if '/images/' in file]
+            # self.label_train_list = [file for file in self.train_list if '/labels/' in file]
+            # self.label_test_list = [file for file in self.test_list if '/labels/' in file]
+            # self.events_train_list = [file for file in self.train_list if '/events/' in file]
+            # self.events_test_list = [file for file in self.test_list if '/events/' in file]
+
+            self.image_train_list = [file for file in self.train_list if 'images' in file]
+            self.image_test_list = [file for file in self.test_list if 'images' in file]
+            self.label_train_list = [file for file in self.train_list if 'labels' in file]
+            self.label_test_list = [file for file in self.test_list if 'labels' in file]
+            self.events_train_list = [file for file in self.train_list if 'events' in file]
+            self.events_test_list = [file for file in self.test_list if 'events' in file]
 
 
             self.label_test_list.sort()

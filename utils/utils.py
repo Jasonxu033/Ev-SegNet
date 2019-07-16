@@ -98,11 +98,18 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
 
     for scale in scales:
         # scale the image
-        x_scaled = tf.image.resize_images(x, (x.shape[1].value * scale, x.shape[2].value * scale),
+        # x_scaled = tf.image.resize_images(x, (x.shape[1].value * scale, x.shape[2].value * scale),
+        #                                   method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+        # print(x.shape[1]*scale)
+        x_scaled = tf.image.resize_images(x, (int(x.shape[1].value * scale), int(x.shape[2].value * scale)),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+
         y_scaled = model(x_scaled, training=False)
         #  rescale the output
-        y_scaled = tf.image.resize_images(y_scaled, (x.shape[1].value, x.shape[2]),
+        #
+        # y_scaled = tf.image.resize_images(y_scaled, (x.shape[1].value, x.shape[2]),
+        #                                   method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+        y_scaled = tf.image.resize_images(y_scaled, (x.shape[1], x.shape[2]),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
         # get scores
         y_scaled = tf.nn.softmax(y_scaled)
@@ -131,13 +138,14 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
         loader.index_test = 0
 
     accuracy = tfe.metrics.Accuracy()
+    # accuracy = tf.contrib.metrics.Accuracy()
     conf_matrix = np.zeros((n_classes, n_classes))
     if train:
         samples = len(loader.image_train_list)
     else:
         samples = len(loader.image_test_list)
 
-    for step in xrange(samples):  # for every batch
+    for step in range(samples):  # for every batch
         x, y, mask = loader.get_batch(size=1, train=train, augmenter=False)
 
         [y] = convert_to_tensors([y])
