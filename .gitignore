@@ -1,4 +1,5 @@
-
+*.zip
+dataset_our_codification*
 images_out*
 prueba
 ./*.pyc
