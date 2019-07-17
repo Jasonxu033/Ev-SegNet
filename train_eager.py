@@ -18,7 +18,7 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
           saver=None, variables_to_optimize=None, evaluation=True, name_best_model='weights/best',
           preprocess_mode=None):
     training_samples = len(loader.image_train_list)
-    steps_per_epoch = (training_samples / batch_size) + 1
+    steps_per_epoch = int((training_samples / batch_size) + 1)
     best_miou = 0
 
     for epoch in range(epochs):  # for each epoch
