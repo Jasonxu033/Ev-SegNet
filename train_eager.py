@@ -119,7 +119,7 @@ if __name__ == "__main__":
     restore_model = tfe.Saver(var_list=variables_to_restore)
 
     # restore if model saved and show number of params
-    restore_state(restore_model, name_best_model)
+    # restore_state(restore_model, name_best_model)
     get_params(model)
 
     train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
