@@ -159,36 +159,45 @@ class Segception_small(tf.keras.Model):
         self.conv_logits = conv(filters=num_classes, kernel_size=1, strides=1, use_bias=True)
 
     def call(self, inputs, training=None, mask=None, aux_loss=False):
-
+        # print("inputs", inputs.shape)
         outputs = self.model_output(inputs, training=training)
         # add activations to the ourputs of the model
         for i in range(len(outputs)):
+            # print(outputs[i].shape)
             outputs[i] = layers.LeakyReLU(alpha=0.3)(outputs[i])
 
         # (outputs[0].shape)
         x = self.adap_encoder_1(outputs[0], training=training)
+        # print(x.shape)
 
         x = upsampling(x, scale=2)
         # print(x.shape)
+        # print(x.shape)
         x += reshape_into(self.adap_encoder_2(outputs[1], training=training), x)  # 512
+        # print(x.shape)
         x = self.decoder_conv_1(x, training=training)  # 256
+        # print(x.shape)
+        # print("x1", x.shape)
 
         x = upsampling(x, scale=2)
         x += reshape_into(self.adap_encoder_3(outputs[2], training=training), x)  # 256
         x = self.decoder_conv_2(x, training=training)  # 256
+        # print("x1", x.shape)
 
         x = upsampling(x, scale=2)
         x += reshape_into(self.adap_encoder_4(outputs[3], training=training), x)  # 128
         x = self.decoder_conv_3(x, training=training)  # 128
+        # print("x1", x.shape)
 
         x = self.aspp(x, training=training, operation='sum')  # 128
 
         x = upsampling(x, scale=2)
         x += reshape_into(self.adap_encoder_5(outputs[4], training=training), x)  # 64
         x = self.decoder_conv_4(x, training=training)  # 64
+        # print("x1", x.shape)
         x = self.conv_logits(x)
         x = upsampling(x, scale=2)
-
+        # print("output", x.shape)
         if aux_loss:
             return x, x
         else:
@@ -282,7 +291,7 @@ def upsampling(inputs, scale):
     b = inputs.shape[2]
     # return tf.image.resize_bilinear(inputs, size=[tf.shape(inputs)[1] * scale, tf.shape(inputs)[2] * scale],
     #                                 align_corners=True)
-    return tf.image.resize_bilinear(inputs, size=[a, b],
+    return tf.image.resize_bilinear(inputs, size=[a*scale, b*scale],
                                     align_corners=True)
 
 

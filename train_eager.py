@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_path", help="Model path", default='weights/model')
     parser.add_argument("--n_classes", help="number of classes to classify", default=6)
     parser.add_argument("--batch_size", help="batch size", default=8)
-    parser.add_argument("--epochs", help="number of epochs to train", default=50)  # 500
+    parser.add_argument("--epochs", help="number of epochs to train", default=0)  # 500
     parser.add_argument("--width", help="number of epochs to train", default=352)
     parser.add_argument("--height", help="number of epochs to train", default=224)
     parser.add_argument("--lr", help="init learning rate", default=1e-3)
