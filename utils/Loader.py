@@ -56,7 +56,7 @@ class Loader:
 
         # Load filepaths
         files = glob.glob(os.path.join(dataFolderPath, '*', '*', '*'))
-        print(files)
+        # print(files)
 
         # print('Structuring test and train files...')
         '''
@@ -124,7 +124,6 @@ class Loader:
             self.label_test_list = [file for file in self.test_list if 'labels' in file]
             self.events_train_list = [file for file in self.train_list if 'events' in file]
             self.events_test_list = [file for file in self.test_list if 'events' in file]
-
 
             self.label_test_list.sort()
             self.image_test_list.sort()
@@ -252,7 +251,7 @@ class Loader:
             label = cv2.imread(random_labels[index], 0)
             if events:
                 event = np.load(random_event_list[index])
-                #event=np.swapaxes(np.swapaxes(event, 0, 2), 0, 1)
+                # event=np.swapaxes(np.swapaxes(event, 0, 2), 0, 1)
 
             mask_image = mask[index, :, :]
 
@@ -264,10 +263,10 @@ class Loader:
                 if events:
                     event = cv2.resize(event, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
 
-
             if train and augmenter:
                 if events:
-                    img, label, mask_image, event = self._perform_augmentation_segmentation(img, label, mask_image, augmenter, event, events)
+                    img, label, mask_image, event = self._perform_augmentation_segmentation(img, label, mask_image,
+                                                                                            augmenter, event, events)
                 else:
                     img, label, mask_image = self._perform_augmentation_segmentation(img, label, mask_image, augmenter)
 
@@ -282,7 +281,7 @@ class Loader:
             if self.dim > 0:
                 x[index, :, :, :self.dim] = img.astype(np.float32)
             if events:
-                x[index, :, :, self.dim:] = event[:,:,:self.channels_events].astype(np.float32)
+                x[index, :, :, self.dim:] = event[:, :, :self.channels_events].astype(np.float32)
 
             y[index, :, :] = label
             mask[index, :, :] = mask_image
@@ -390,15 +389,14 @@ class Loader:
         print(results)
         return results
 
-
     def augment_event(self, event_image, swap_max=0.35, delete_pixel_max=0.80, make_up_max=0.02, change_value_max=0.45):
         _, w, h, c = event_image.shape
-        pixels = w*h
+        pixels = w * h
 
-        swap_pixels_max=int(pixels*swap_max)
-        delete_pixel_pixels_max=int(pixels*delete_pixel_max)
-        make_up_pixels_max=int(pixels*make_up_max)
-        change_value_pixels_max=int(pixels*change_value_max)
+        swap_pixels_max = int(pixels * swap_max)
+        delete_pixel_pixels_max = int(pixels * delete_pixel_max)
+        make_up_pixels_max = int(pixels * make_up_max)
+        change_value_pixels_max = int(pixels * change_value_max)
 
         swap_pixels = np.random.randint(0, high=swap_pixels_max)
         delete_pixel_pixels = np.random.randint(0, high=delete_pixel_pixels_max)
@@ -408,7 +406,7 @@ class Loader:
         for index in xrange(swap_pixels):
             i = np.random.randint(0, w)
             j = np.random.randint(0, h)
-            i_n, j_n = get_neighbour(i, j, w-1, h-1)
+            i_n, j_n = get_neighbour(i, j, w - 1, h - 1)
             value_aux = event_image[:, i, j, :]
             event_image[:, i, j, :] = event_image[:, i_n, j_n, :]
             event_image[:, i_n, j_n, :] = value_aux
@@ -416,7 +414,7 @@ class Loader:
         for index in xrange(change_value_pixels):
             i = np.random.randint(0, w)
             j = np.random.randint(0, h)
-            i_n, j_n = get_neighbour(i, j, w-1, h-1)
+            i_n, j_n = get_neighbour(i, j, w - 1, h - 1)
             if event_image[0, i_n, j_n, 0] > - 1 or event_image[0, i_n, j_n, 1] > - 1:
                 event_image[:, i, j, :] = event_image[:, i_n, j_n, :]
 
@@ -440,12 +438,6 @@ class Loader:
             event_image[:, i, j, 4] = 0
             event_image[:, i, j, 5] = 0
 
-
-
-
-
-
-
         '''
         #intercambiar pixels  en todos los canales (can vecinos)
 
@@ -457,8 +449,8 @@ class Loader:
         return event_image
 
 
-def  get_neighbour(i, j, max_i, max_j):
-    random_number= np.random.random()
+def get_neighbour(i, j, max_i, max_j):
+    random_number = np.random.random()
     if random_number < 0.25:
         j += 1
 
@@ -478,9 +470,11 @@ def  get_neighbour(i, j, max_i, max_j):
 
     return i, j
 
+
 if __name__ == "__main__":
 
-    loader = Loader('/media/msrobot/discoGordo/Event-based/INIGO/dataset_our_codification', problemType='segmentation', n_classes=6, width=346, height=260,
+    loader = Loader('/media/msrobot/discoGordo/Event-based/INIGO/dataset_our_codification', problemType='segmentation',
+                    n_classes=6, width=346, height=260,
                     median_frequency=0.00, channels=1, channels_events=6)
     # print(loader.median_frequency_exp())
     x, y, mask = loader.get_batch(size=6, augmenter='segmentation')

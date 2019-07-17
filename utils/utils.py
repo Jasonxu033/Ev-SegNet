@@ -6,6 +6,7 @@ import math
 import os
 import cv2
 
+
 # Prints the number of parameters of a model
 def get_params(model):
     # Init models (variables and input shape)
@@ -19,20 +20,23 @@ def get_params(model):
         total_parameters += variable_parameters
     print("Total parameters of the net: " + str(total_parameters) + " == " + str(total_parameters / 1000000.0) + "M")
 
+
 # preprocess a batch of images
 def preprocess(x, mode='imagenet'):
     if mode:
         if 'imagenet' in mode:
             return tf.keras.applications.xception.preprocess_input(x)
         elif 'normalize' in mode:
-            return  x.astype(np.float32) / 127.5 - 1
+            return x.astype(np.float32) / 127.5 - 1
     else:
         return x
+
 
 # applies to a lerarning rate tensor (lr) a decay schedule, the polynomial decay
 def lr_decay(lr, init_learning_rate, end_learning_rate, epoch, total_epochs, power=0.9):
     lr.assign(
         (init_learning_rate - end_learning_rate) * math.pow(1 - epoch / 1. / total_epochs, power) + end_learning_rate)
+
 
 # converts a list of arrays into a list of tensors
 def convert_to_tensors(list_to_convert):
@@ -41,6 +45,7 @@ def convert_to_tensors(list_to_convert):
     else:
         return []
 
+
 # restores a checkpoint model
 def restore_state(saver, checkpoint):
     try:
@@ -48,6 +53,7 @@ def restore_state(saver, checkpoint):
         print('Model loaded')
     except Exception as e:
         print('Model not loaded: ' + str(e))
+
 
 # inits a models (set input)
 def init_model(model, input_shape):
@@ -61,6 +67,7 @@ def erase_ignore_pixels(labels, predictions, mask):
     predictions = tf.gather(predictions, indices)
 
     return labels, predictions
+
 
 # generate and write an image into the disk
 def generate_image(image_scores, output_dir, dataset, loader, train=False):
@@ -88,6 +95,7 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False):
     name_split = list[index - 1].split('/')
     name = name_split[-1].replace('.jpg', '.png').replace('.jpeg', '.png')
     cv2.imwrite(os.path.join(out_dir, name), image)
+
 
 def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], preprocess_mode=None):
     x = preprocess(batch_images, mode=preprocess_mode)
@@ -129,6 +137,7 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
 
     return y_
 
+
 # get accuracy and miou from a model
 def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scales=[1], write_images=False,
                 preprocess_mode=None):
@@ -153,7 +162,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
         # generate images
         if write_images:
-            generate_image(y_[0,:,:,:], 'images_out', loader.dataFolderPath, loader, train)
+            generate_image(y_[0, :, :, :], 'images_out', loader.dataFolderPath, loader, train)
 
         # Rephape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
@@ -166,6 +175,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
     # get the train and test accuracy from the model
     return accuracy.result(), compute_iou(conf_matrix)
+
 
 # computes the miou given a confusion amtrix
 def compute_iou(conf_matrix):
