@@ -14,7 +14,7 @@ np.random.seed(7)
 
 
 # Trains the model for certains epochs on a dataset
-def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None, lr=None, init_lr=2e-4,
+def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None, lr=None, init_lr=2e-4,
           saver=None, variables_to_optimize=None, evaluation=True, name_best_model='weights/best',
           preprocess_mode=None):
     training_samples = len(loader.image_train_list)
@@ -27,6 +27,7 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
         for step in range(steps_per_epoch):  # for every batch
             with tf.GradientTape() as g:
                 # get batch
+                print("process:%.2f"%(step/steps_per_epoch), "\t", step, "/", steps_per_epoch)
                 x, y, mask = loader.get_batch(size=batch_size, train=True, augmenter=augmenter)
 
                 x = preprocess(x, mode=preprocess_mode)
@@ -67,15 +68,15 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", help="Dataset path", default=r'/home/zhaodi/packages/Ev-SegNet-master/datas/dataset_our_codification')
+    parser.add_argument("--dataset", help="Dataset path", default=r'datas/dataset_our_codification')
     parser.add_argument("--model_path", help="Model path", default='weights/model')
     parser.add_argument("--n_classes", help="number of classes to classify", default=6)
     parser.add_argument("--batch_size", help="batch size", default=8)
-    parser.add_argument("--epochs", help="number of epochs to train", default=0)  # 500
+    parser.add_argument("--epochs", help="number of epochs to train", default=10)  # 500
     parser.add_argument("--width", help="number of epochs to train", default=352)
     parser.add_argument("--height", help="number of epochs to train", default=224)
     parser.add_argument("--lr", help="init learning rate", default=1e-3)
-    parser.add_argument("--n_gpu", help="number of the gpu", default=4)
+    parser.add_argument("--n_gpu", help="number of the gpu", default=1)
     args = parser.parse_args()
 
     n_gpu = int(args.n_gpu)

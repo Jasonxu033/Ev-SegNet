@@ -49,6 +49,7 @@ def convert_to_tensors(list_to_convert):
 # restores a checkpoint model
 def restore_state(saver, checkpoint):
     try:
+        print("Model path", checkpoint)
         saver.restore(checkpoint)
         print('Model loaded')
     except Exception as e:
@@ -193,3 +194,31 @@ def compute_iou(conf_matrix):
     print ('Miou without counting classes with 0 elements in the test samples: '+ str(miou_no_zeros))
     '''
     return miou
+
+
+def evaluate(loader, model, n_classes, train=True, flip_inference=False, scales=[1], write_images=True,
+             preprocess_mode=None):
+    if train:
+        loader.index_train = 0
+    else:
+        loader.index_test = 0
+
+    # accuracy = tfe.metrics.Accuracy()
+    # accuracy = tf.contrib.metrics.Accuracy()
+    conf_matrix = np.zeros((n_classes, n_classes))
+    if train:
+        samples = len(loader.image_train_list)
+    else:
+        samples = len(loader.image_test_list)
+
+    for step in range(samples):  # for every batch
+        print(step, samples)
+	
+        x, y, mask = loader.get_batch(size=1, train=train, augmenter=False)
+
+        [y] = convert_to_tensors([y])
+        y_ = inference(model, x, n_classes, flip_inference, scales, preprocess_mode=preprocess_mode)
+
+        # generate images
+        if write_images:
+            generate_image(y_[0, :, :, :], 'images_out', loader.dataFolderPath, loader, train)

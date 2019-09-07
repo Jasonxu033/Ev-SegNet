@@ -1,3 +1,8 @@
+images_out
+__pycache__
+datas
+log*
+nets
 xzc
 *.zip
 dataset_our_codification*
